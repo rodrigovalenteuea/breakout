@@ -3,8 +3,8 @@ import pygame
 pygame.init()
 pygame.mixer.init()
 
-WIDTH = 893
-HEIGHT = 1000
+WIDTH = 500
+HEIGHT = 700
 size = (WIDTH, HEIGHT)
 screen = pygame.display.set_mode(size)
 clock = pygame.time.Clock()
@@ -54,11 +54,13 @@ def main(score, balls):
 
             if event.type == pygame.QUIT:
                 run = False
-            key = pygame.key.get_pressed()
-            if key[pygame.K_LEFT] and paddle.left > 0:
+
+            keys = pygame.key.get_pressed()
+            if pygame.key.get_pressed()[pygame.K_LEFT]:
                 paddle.left -= p_speed
-            if key[pygame.K_RIGHT] and paddle.right < WIDTH:
+            if pygame.key.get_pressed()[pygame.K_RIGHT]:
                 paddle.right += p_speed
+
         draw_wall()
         pygame.display.update()
         screen.fill(bg)
