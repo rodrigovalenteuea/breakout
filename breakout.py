@@ -80,6 +80,7 @@ def main(score, balls):
     run = True
     moving_left = False
     moving_right = False
+    paddle_x = 0
 
     while run:
         for event in pygame.event.get():
@@ -101,9 +102,16 @@ def main(score, balls):
                         ballx, bally = 10, 10
 
         if moving_left:
-            paddle.left -= p_speed
+            paddle.left -= p_speed/2
+            paddle_x += -12.5
         if moving_right:
-            paddle.right += p_speed
+            paddle.right += p_speed/2
+            paddle_x += 12.5
+
+        if paddle_x < -500:
+            moving_left = False
+        elif paddle_x > 500:
+            moving_right = False
 
         ball_movement()
         screen.fill(bg)
