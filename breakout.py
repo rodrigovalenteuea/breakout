@@ -6,6 +6,7 @@ pygame.mixer.init()
 WIDTH = 500
 HEIGHT = 700
 size = (WIDTH, HEIGHT)
+pygame.display.set_caption("Breakout")
 screen = pygame.display.set_mode(size)
 clock = pygame.time.Clock()
 FPS = 60
@@ -48,24 +49,37 @@ def draw_wall():
 def main(score, balls):
     step = 0
     run = True
+    moving_left = False
+    moving_right = False
+
     while run:
-
         for event in pygame.event.get():
-
             if event.type == pygame.QUIT:
                 run = False
 
-            keys = pygame.key.get_pressed()
-            if pygame.key.get_pressed()[pygame.K_LEFT]:
-                paddle.left -= p_speed
-            if pygame.key.get_pressed()[pygame.K_RIGHT]:
-                paddle.right += p_speed
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_LEFT:
+                    moving_left = True
+                elif event.key == pygame.K_RIGHT:
+                    moving_right = True
 
-        draw_wall()
-        pygame.display.update()
+            elif event.type == pygame.KEYUP:
+                if event.key == pygame.K_LEFT:
+                    moving_left = False
+                elif event.key == pygame.K_RIGHT:
+                    moving_right = False
+
+        if moving_left:
+            paddle.left -= p_speed
+        if moving_right:
+            paddle.right += p_speed
+
         screen.fill(bg)
+        draw_wall()
         pygame.draw.rect(screen, (255, 255, 255), paddle)
+        pygame.display.update()
         clock.tick(FPS)
+
     pygame.quit()
 
 
