@@ -70,9 +70,16 @@ def main(score, balls):
                     moving_right = False
 
         if moving_left:
-            paddle.left -= p_speed
+            paddle.left -= p_speed/2
+            paddle_x += -12.5
         if moving_right:
-            paddle.right += p_speed
+            paddle.right += p_speed/2
+            paddle_x += 12.5
+
+        if paddle_x < -500:
+            moving_left = False
+        elif paddle_x > 500:
+            moving_right = False
 
         screen.fill(bg)
         draw_wall()
