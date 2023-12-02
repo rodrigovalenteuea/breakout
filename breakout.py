@@ -51,6 +51,7 @@ def main(score, balls):
     run = True
     moving_left = False
     moving_right = False
+    paddle_x = 0
 
     while run:
         for event in pygame.event.get():
