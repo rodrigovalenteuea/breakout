@@ -31,7 +31,7 @@ x_gap = 7
 y_gap = 5
 wall_width = 16
 
-paddle = pygame.Rect(WIDTH / 2 - 100, 950, 55, 16)
+paddle = pygame.Rect(WIDTH / 2 - 28, 670, 55, 16)
 p_speed = 10
 
 
