@@ -30,20 +30,21 @@ brick_width = 55
 brick_height = 16
 x_gap = 7
 y_gap = 5
-wall_width = 16
+wall_width = 10
 
-paddle = pygame.Rect(WIDTH / 2 - 28, 670, 55, 16)
+paddle = pygame.Rect(WIDTH / 2 - 28, 650, 55, 16)
 p_speed = 10
 
 
 def draw_wall():
-    pygame.draw.line(screen, GREY, [0, 19], [WIDTH, 19], 40)
-    pygame.draw.line(screen, GREY, [(wall_width / 2) - 1, 0], [(wall_width / 2) - 1, HEIGHT], wall_width)
-    pygame.draw.line(screen, GREY, [WIDTH - (wall_width / 2) - 1, 0], [WIDTH - (wall_width / 2) - 1, HEIGHT],
+    pygame.draw.line(screen, GREY, [0, 0], [WIDTH, 0], 40)
+
+    pygame.draw.line(screen, GREY, [(wall_width/2)-1, 0], [(wall_width/2)-1, HEIGHT], wall_width)
+    pygame.draw.line(screen, GREY, [WIDTH - (wall_width/2) - 1, 0], [WIDTH - (wall_width / 2) - 1, HEIGHT],
                      wall_width)
 
-    pygame.draw.line(screen, BLUE, [0, 300], [(wall_width - 1), 300], wall_width)
-    pygame.draw.line(screen, BLUE, [WIDTH, 300], [(WIDTH - wall_width), 300], wall_width)
+    pygame.draw.line(screen, BLUE, [0, 657], [(wall_width - 1), 657], 35)
+    pygame.draw.line(screen, BLUE, [WIDTH, 657], [(WIDTH - wall_width), 657], 35)
 
 
 def main(score, balls):
@@ -58,13 +59,13 @@ def main(score, balls):
             if event.type == pygame.QUIT:
                 run = False
 
-            elif event.type == pygame.KEYDOWN:
+            if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_LEFT:
                     moving_left = True
                 elif event.key == pygame.K_RIGHT:
                     moving_right = True
 
-            elif event.type == pygame.KEYUP:
+            if event.type == pygame.KEYUP:
                 if event.key == pygame.K_LEFT:
                     moving_left = False
                 elif event.key == pygame.K_RIGHT:
@@ -72,19 +73,18 @@ def main(score, balls):
 
         if moving_left:
             paddle.left -= p_speed/2
-            paddle_x += -12.5
         if moving_right:
             paddle.right += p_speed/2
-            paddle_x += 12.5
 
-        if paddle_x < -500:
-            moving_left = False
-        elif paddle_x > 500:
-            moving_right = False
+        if paddle.x < 10:
+            paddle.x = 10
+        elif paddle.x + 55 > WIDTH-10:
+            paddle.x = WIDTH - 55 - 10
+
 
         screen.fill(bg)
         draw_wall()
-        pygame.draw.rect(screen, (255, 255, 255), paddle)
+        pygame.draw.rect(screen, BLUE, paddle)
         pygame.display.update()
         clock.tick(FPS)
 
