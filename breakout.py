@@ -5,7 +5,7 @@ import random
 pygame.init()
 pygame.mixer.init()
 
-WIDTH = 600
+WIDTH = 632
 HEIGHT = 700
 size = (WIDTH, HEIGHT)
 pygame.display.set_caption("Breakout")
@@ -29,9 +29,11 @@ balls = 1
 velocity = 4
 
 brick_width = 40
-brick_height = 16
-x_gap = 7
-y_gap = 5
+brick_height = 11
+x_gap = 4
+y_gap = 4
+x_gap_init = 10
+y_gap_init = 120
 wall_width = 10
 dist_top = 20
 
@@ -83,53 +85,46 @@ def draw_wall():
 
 
 
-def return_brick_list():
-    list_bricks = []
-    #for i in range(14):
-'''
-def return_brick_list():
-    list_bricks = []
-
-    for j in range(7):
-        for i in range(13):
-            brick = Brick()
-            if j < 2:
-                if i == 0:
-                    brick.x = wall_width+1
-                    brick.y = dist_top
-                    brick.level = 1
-                    brick.color = RED
+def return_brick_list(list_bricks):
+    for i in range(8):
+        for j in range(14):
+            brick_x = x_gap_init + (j * (x_gap + brick_width))
+            brick_y = y_gap_init + (i * (y_gap+brick_height))
+            brick_rect = pygame.Rect(brick_x, brick_y, brick_width, brick_height)
+            list_bricks.append(brick_rect)
+            '''
+            if i < 2:
+                if j == 0:
+                    brick_x = x_gap_init
                 else:
-                    brick.x = wall_width + 1
-                    brick.y = dist_top + (brick_height*i) + y_gap
-                    brick.level = 1
-                    brick.color = ORANGE
-            else:
-                brick.x = wall_width + 1
-                brick.y = dist_top + (brick_height * i) + y_gap
-                brick.level = 1
-                brick.color = BLUE
-            #if 1 < j < 4:
-
-
-            #if 3 < j < 6:
-
-
-            #if 5 < j < 8:
-
-        list_bricks.append(brick)
-    list_bricks.append(brick)
+                    brick_x = x_gap_init + (brick_width*j) + (x_gap*j)
+                brick_y = y_gap_init + ()
+                
+            elif 1 < i < 4:
+                if j == 0:
+                    brick_x = x_gap_init
+                else:
+                    brick_x = x_gap_init + (brick_width*j) + (x_gap*j)
+                brick_y = y_gap_init
+                brick_rect = pygame.Rect(brick_x, brick_y, brick_width, brick_height)
+                list_bricks.append(brick_rect)
+                '''
     return list_bricks
-'''
-def draw_brick_list(list_bricks):
-    #i=0
-    #brick = pygame.Rect(list_bricks[i].x, list_bricks[i].y, brick_width, brick_height)
-    #pygame.draw.rect(screen, list_bricks[i].color, brick)
+
+
+def draw_list_brick(list_bricks):
+    cont = 0
     for i in list_bricks:
-        brick = pygame.Rect(i.x, i.y, brick_width, brick_height)
-        pygame.draw.rect(screen, i.color, brick)
-      #i.imprimir()
-    print(len(list_bricks))
+        print(cont)
+        if cont < 28:
+            pygame.draw.rect(screen, RED, i)
+        elif 28 <= cont and cont < 56:
+            pygame.draw.rect(screen, ORANGE, i)
+        elif 56 <= cont and cont < 84:
+            pygame.draw.rect(screen, GREEN, i)
+        elif 84 <= cont and cont < 112:
+            pygame.draw.rect(screen, YELLOW, i)
+        cont += 1
 
 
 def main(score, balls):
@@ -138,16 +133,6 @@ def main(score, balls):
     run = True
     moving_left = False
     moving_right = False
-    list_bricks = return_brick_list()
-
-
-    '''for i in range(14):
-        for j in range(9):
-            if i==0:
-                if j == 0:
-                    brick.x = '''
-
-
 
     while run:
         for event in pygame.event.get():
@@ -184,11 +169,15 @@ def main(score, balls):
             paddle.x = 10
         elif paddle.x + 55 > WIDTH - 10:
             paddle.x = WIDTH - 55 - 10
-
+        list_bricks = []
+        list_bricks = return_brick_list(list_bricks)
         screen.fill(bg)
         ballmove()
         draw_wall()
-        draw_brick_list(list_bricks)
+        draw_list_brick(list_bricks)
+        #for i in list_bricks:
+            #pygame.draw.rect(screen, ORANGE, i)
+
         pygame.draw.rect(screen, BLUE, paddle)
         pygame.draw.rect(screen, WHITE, ball)
         pygame.display.update()
