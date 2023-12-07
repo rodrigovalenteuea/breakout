@@ -133,6 +133,8 @@ def main(score, balls):
     run = True
     moving_left = False
     moving_right = False
+    game_over = False
+    lives = 5
 
     while run:
         for event in pygame.event.get():
@@ -176,8 +178,34 @@ def main(score, balls):
         draw_wall()
         draw_list_brick(list_bricks)
         #for i in list_bricks:
-            #pygame.draw.rect(screen, ORANGE, i)
+        #pygame.draw.rect(screen, ORANGE, i)
+        
+        #lives and game over system
+        if ball.y > paddle.y:
+            lives -= 1
+            if lives <= 0:
+                run = False
+            else:
+                ball.x = WIDTH // 2 - 6
+                ball.y = 600
+                paddle.x = WIDTH // 2 - 28
+                paddle.y = 650
+                ballx = 0
+                bally = 0
+                ball_started = False
 
+            if ballx == 0 and bally == 0 and ball_started:  
+                if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_RIGHT:
+                        ballx = 7 * random.choice((1, -1))
+                        bally = 7 * random.choice((1, -1))
+                    elif event.key == pygame.K_LEFT:
+                        ballx = 7 * random.choice((1, -1))
+                        bally = 7 * random.choice((1, -1))
+
+
+
+        
         pygame.draw.rect(screen, BLUE, paddle)
         pygame.draw.rect(screen, WHITE, ball)
         pygame.display.update()
