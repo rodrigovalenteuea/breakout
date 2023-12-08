@@ -63,16 +63,6 @@ def ballmove():
             else:
                 ballx *= -1
 
-
-class Brick:
-    def __int__(self, color, level, x, y):
-        self.color = color
-        self.level = level
-        self.x = x
-        self.y = y
-    def imprimir(self):
-        print(self.color)
-
 def draw_wall():
     pygame.draw.line(screen, GREY, [0, 0], [WIDTH, 0], 40)
 
@@ -83,8 +73,6 @@ def draw_wall():
     pygame.draw.line(screen, BLUE, [0, 657], [(wall_width - 1), 657], 35)
     pygame.draw.line(screen, BLUE, [WIDTH, 657], [(WIDTH - wall_width), 657], 35)
 
-
-
 def return_brick_list(list_bricks):
     for i in range(8):
         for j in range(14):
@@ -92,30 +80,11 @@ def return_brick_list(list_bricks):
             brick_y = y_gap_init + (i * (y_gap+brick_height))
             brick_rect = pygame.Rect(brick_x, brick_y, brick_width, brick_height)
             list_bricks.append(brick_rect)
-            '''
-            if i < 2:
-                if j == 0:
-                    brick_x = x_gap_init
-                else:
-                    brick_x = x_gap_init + (brick_width*j) + (x_gap*j)
-                brick_y = y_gap_init + ()
-                
-            elif 1 < i < 4:
-                if j == 0:
-                    brick_x = x_gap_init
-                else:
-                    brick_x = x_gap_init + (brick_width*j) + (x_gap*j)
-                brick_y = y_gap_init
-                brick_rect = pygame.Rect(brick_x, brick_y, brick_width, brick_height)
-                list_bricks.append(brick_rect)
-                '''
     return list_bricks
-
 
 def draw_list_brick(list_bricks):
     cont = 0
     for i in list_bricks:
-        print(cont)
         if cont < 28:
             pygame.draw.rect(screen, RED, i)
         elif 28 <= cont and cont < 56:
@@ -125,7 +94,6 @@ def draw_list_brick(list_bricks):
         elif 84 <= cont and cont < 112:
             pygame.draw.rect(screen, YELLOW, i)
         cont += 1
-
 
 def main(score, balls):
     global ballx, bally
@@ -171,13 +139,14 @@ def main(score, balls):
             paddle.x = WIDTH - 55 - 10
         list_bricks = []
         list_bricks = return_brick_list(list_bricks)
+
+        hit_index = ball.collidelist(list_bricks)
+        if hit_index != -1:
+            hit_rect = list_bricks.pop(hit_index)
         screen.fill(bg)
         ballmove()
         draw_wall()
         draw_list_brick(list_bricks)
-        #for i in list_bricks:
-            #pygame.draw.rect(screen, ORANGE, i)
-
         pygame.draw.rect(screen, BLUE, paddle)
         pygame.draw.rect(screen, WHITE, ball)
         pygame.display.update()
