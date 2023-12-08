@@ -82,18 +82,17 @@ def return_brick_list(list_bricks):
             list_bricks.append(brick_rect)
     return list_bricks
 
-def draw_list_brick(list_bricks):
-    cont = 0
+
+def draw_list_brick2(list_bricks):
     for i in list_bricks:
-        if cont < 28:
+        if i.y == 120 or i.y == 135:
             pygame.draw.rect(screen, RED, i)
-        elif 28 <= cont and cont < 56:
+        elif i.y == 150 or i.y == 165:
             pygame.draw.rect(screen, ORANGE, i)
-        elif 56 <= cont and cont < 84:
+        elif i.y == 180 or i.y == 195:
             pygame.draw.rect(screen, GREEN, i)
-        elif 84 <= cont and cont < 112:
+        elif i.y == 210 or i.y == 225:
             pygame.draw.rect(screen, YELLOW, i)
-        cont += 1
 
 def main(score, balls):
     global ballx, bally
@@ -101,7 +100,10 @@ def main(score, balls):
     run = True
     moving_left = False
     moving_right = False
-
+    game_over = False
+    lives = 100
+    list_bricks = []
+    list_bricks = return_brick_list(list_bricks)
     while run:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -137,16 +139,39 @@ def main(score, balls):
             paddle.x = 10
         elif paddle.x + 55 > WIDTH - 10:
             paddle.x = WIDTH - 55 - 10
-        list_bricks = []
-        list_bricks = return_brick_list(list_bricks)
+
 
         hit_index = ball.collidelist(list_bricks)
         if hit_index != -1:
             hit_rect = list_bricks.pop(hit_index)
+            bally*=-1
         screen.fill(bg)
         ballmove()
         draw_wall()
-        draw_list_brick(list_bricks)
+        draw_list_brick2(list_bricks)
+        #lives and game over system
+        if ball.y > paddle.y:
+            lives -= 1
+            if lives <= 0:
+                run = False
+            else:
+                ball.x = WIDTH // 2 - 6
+                ball.y = 600
+                paddle.x = WIDTH // 2 - 28
+                paddle.y = 650
+                ballx = 0
+                bally = 0
+                ball_started = False
+
+            if ballx == 0 and bally == 0 and ball_started:  
+                if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_RIGHT:
+                        ballx = 7 * random.choice((1, -1))
+                        bally = 7 * random.choice((1, -1))
+                    elif event.key == pygame.K_LEFT:
+                        ballx = 7 * random.choice((1, -1))
+                        bally = 7 * random.choice((1, -1))
+
         pygame.draw.rect(screen, BLUE, paddle)
         pygame.draw.rect(screen, WHITE, ball)
         pygame.display.update()
