@@ -1,6 +1,6 @@
 import pygame
 import random
-
+import time
 
 pygame.init()
 pygame.mixer.init()
@@ -11,6 +11,8 @@ size = (WIDTH, HEIGHT)
 pygame.display.set_caption("Breakout")
 screen = pygame.display.set_mode(size)
 clock = pygame.time.Clock()
+game_font = pygame.font.Font("fontgame.ttf", 35)
+end_text = f"Game over"
 FPS = 60
 bg = (0, 0, 0)
 
@@ -42,6 +44,7 @@ paddle = pygame.Rect(WIDTH / 2 - 28, 650, 55, 16)
 p_speed = 10
 ballx = 0
 bally = 0
+lives = 1
 
 
 def ballmove():
@@ -63,6 +66,7 @@ def ballmove():
             else:
                 ballx *= -1
 
+
 def draw_wall():
     pygame.draw.line(screen, GREY, [0, 0], [WIDTH, 0], 40)
 
@@ -73,11 +77,12 @@ def draw_wall():
     pygame.draw.line(screen, BLUE, [0, 657], [(wall_width - 1), 657], 35)
     pygame.draw.line(screen, BLUE, [WIDTH, 657], [(WIDTH - wall_width), 657], 35)
 
+
 def return_brick_list(list_bricks):
     for i in range(8):
         for j in range(14):
             brick_x = x_gap_init + (j * (x_gap + brick_width))
-            brick_y = y_gap_init + (i * (y_gap+brick_height))
+            brick_y = y_gap_init + (i * (y_gap + brick_height))
             brick_rect = pygame.Rect(brick_x, brick_y, brick_width, brick_height)
             list_bricks.append(brick_rect)
     return list_bricks
@@ -94,18 +99,17 @@ def draw_list_brick2(list_bricks):
         elif i.y == 210 or i.y == 225:
             pygame.draw.rect(screen, YELLOW, i)
 
+
 def main(score, balls):
-    global ballx, bally
+    global ballx, bally, lives, end_text
     step = 0
     run = True
     moving_left = False
     moving_right = False
     game_over = False
-    lives = 5
     list_bricks = []
     list_bricks = return_brick_list(list_bricks)
 
-    
     while run:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -133,28 +137,28 @@ def main(score, balls):
                         bally = -7
 
         if moving_left:
-            paddle.left -= p_speed / 2
+            paddle.left -= p_speed
         if moving_right:
-            paddle.right += p_speed / 2
+            paddle.right += p_speed
 
         if paddle.x < 10:
             paddle.x = 10
         elif paddle.x + 55 > WIDTH - 10:
             paddle.x = WIDTH - 55 - 10
 
-
         hit_index = ball.collidelist(list_bricks)
         if hit_index != -1:
             hit_rect = list_bricks.pop(hit_index)
-            bally*=-1
+            bally *= -1
+            score += 1
         screen.fill(bg)
         ballmove()
         draw_wall()
         draw_list_brick2(list_bricks)
-        #lives and game over system
+        # lives and game over system
         if ball.y > paddle.y:
-            lives -= 1
-            if lives <= 0:
+            lives += 1
+            if lives >= 4:
                 run = False
             else:
                 ball.x = WIDTH // 2 - 6
@@ -165,7 +169,7 @@ def main(score, balls):
                 bally = 0
                 ball_started = False
 
-            if ballx == 0 and bally == 0 and ball_started:  
+            if ballx == 0 and bally == 0 and ball_started:
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_RIGHT:
                         ballx = 7 * random.choice((1, -1))
@@ -173,13 +177,23 @@ def main(score, balls):
                     elif event.key == pygame.K_LEFT:
                         ballx = 7 * random.choice((1, -1))
                         bally = -7
-        
+
         pygame.draw.rect(screen, BLUE, paddle)
         pygame.draw.rect(screen, WHITE, ball)
+        live_text = game_font.render(f"{lives}", False, (255, 255, 255))
+        screen.blit(live_text, (450, 25))
+        score_text = game_font.render(f"{score}", False, (WHITE))
+        screen.blit(score_text, (100, 25))
         pygame.display.update()
         clock.tick(FPS)
 
-    pygame.quit()
+
+    screen.fill((0, 0, 0))
+    if lives == 4:
+        end_text_formated = game_font.render(end_text, False, (255, 255, 255))
+        screen.blit(end_text_formated, (150, 300))
+        pygame.display.update()
+        time.sleep(4)
 
 
 main(score, balls)
