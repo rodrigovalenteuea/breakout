@@ -101,9 +101,11 @@ def main(score, balls):
     moving_left = False
     moving_right = False
     game_over = False
-    lives = 100
+    lives = 5
     list_bricks = []
     list_bricks = return_brick_list(list_bricks)
+
+    
     while run:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -124,11 +126,11 @@ def main(score, balls):
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_RIGHT:
                         ballx = 7 * random.choice((1, -1))
-                        bally = 7 * random.choice((1, -1))
+                        bally = -7
 
                     if event.key == pygame.K_LEFT:
                         ballx = 7 * random.choice((1, -1))
-                        bally = 7 * random.choice((1, -1))
+                        bally = -7
 
         if moving_left:
             paddle.left -= p_speed / 2
@@ -167,11 +169,11 @@ def main(score, balls):
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_RIGHT:
                         ballx = 7 * random.choice((1, -1))
-                        bally = 7 * random.choice((1, -1))
+                        bally = -7
                     elif event.key == pygame.K_LEFT:
                         ballx = 7 * random.choice((1, -1))
-                        bally = 7 * random.choice((1, -1))
-
+                        bally = -7
+        
         pygame.draw.rect(screen, BLUE, paddle)
         pygame.draw.rect(screen, WHITE, ball)
         pygame.display.update()
