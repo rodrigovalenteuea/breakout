@@ -13,7 +13,7 @@ screen = pygame.display.set_mode(size)
 clock = pygame.time.Clock()
 game_font = pygame.font.Font("fontgame.ttf", 35)
 end_text = f"Game over"
-FPS = 60
+FPS = 75
 bg = (0, 0, 0)
 
 WHITE = (255, 255, 255)
@@ -45,6 +45,8 @@ p_speed = 10
 ballx = 0
 bally = 0
 lives = 1
+brick_collision = False
+cooldown_timer = 0
 
 
 def ballmove():
@@ -52,19 +54,15 @@ def ballmove():
     ball.x += ballx
     ball.y += bally
     if ball.top <= 20 or ball.bottom >= HEIGHT:
-        bally *= -1
+        bally = -bally
     if ball.right >= WIDTH - 10 or ball.left <= 10:
-        ballx *= -1
+        ballx = -ballx
     if ball.colliderect(paddle):
-        if ball.right >= paddle.left and ball.left <= paddle.right:
-            if ball.bottom >= paddle.top >= ball.top:
-                bally *= -1
-                ball.y = paddle.top - ball.height
-            elif ball.top <= paddle.bottom <= ball.bottom:
-                bally *= -1
-                ball.y = paddle.bottom
-            else:
-                ballx *= -1
+        relative_collision_position = (ball.x + ball.width / 2 - paddle.left) / paddle.width * 2 - 1
+        ballx = 7 * relative_collision_position
+        bally = -bally
+    ballx = max(-5, min(5, ballx))
+    bally = max(-5, min(5, bally))
 
 
 def draw_wall():
@@ -101,7 +99,7 @@ def draw_list_brick2(list_bricks):
 
 
 def main(score, balls):
-    global ballx, bally, lives, end_text
+    global ballx, bally, lives, end_text, brick_collision, cooldown_timer, ball_started, event
     step = 0
     run = True
     moving_left = False
@@ -146,11 +144,16 @@ def main(score, balls):
         elif paddle.x + 55 > WIDTH - 10:
             paddle.x = WIDTH - 55 - 10
 
-        hit_index = ball.collidelist(list_bricks)
-        if hit_index != -1:
-            hit_rect = list_bricks.pop(hit_index)
-            bally *= -1
-            score += 1
+        if not brick_collision:
+            if cooldown_timer <= 0:
+                hit_index = ball.collidelist(list_bricks)
+                if hit_index != -1:
+                    hit_rect = list_bricks.pop(hit_index)
+                    bally *= -1
+                    score += 1
+                    brick_collision = True
+                    cooldown_timer = 1
+
         screen.fill(bg)
         ballmove()
         draw_wall()
@@ -182,11 +185,15 @@ def main(score, balls):
         pygame.draw.rect(screen, WHITE, ball)
         live_text = game_font.render(f"{lives}", False, (255, 255, 255))
         screen.blit(live_text, (450, 25))
-        score_text = game_font.render(f"{score}", False, (WHITE))
+        score_text = game_font.render(f"{score}", False, WHITE)
         screen.blit(score_text, (100, 25))
         pygame.display.update()
         clock.tick(FPS)
 
+        if brick_collision:
+            cooldown_timer -= clock.get_time() / 1000
+            if cooldown_timer <= 0:
+                brick_collision = False
 
     screen.fill((0, 0, 0))
     if lives == 4:
