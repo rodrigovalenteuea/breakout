@@ -28,7 +28,7 @@ YELLOW = (197, 199, 37)
 
 score = 0
 balls = 1
-velocity = 4
+velocity = 2
 
 brick_width = 40
 brick_height = 11
@@ -38,6 +38,11 @@ x_gap_init = 10
 y_gap_init = 120
 wall_width = 10
 dist_top = 20
+
+velocity_yellow = 3
+velocity_green = 4
+velocity_orange = 5
+velocity_red = 6
 
 ball = pygame.Rect(WIDTH / 2 - 6, 600, 15, 10)
 paddle = pygame.Rect(WIDTH / 2 - 28, 650, 55, 16)
@@ -59,10 +64,10 @@ def ballmove():
         ballx = -ballx
     if ball.colliderect(paddle):
         relative_collision_position = (ball.x + ball.width / 2 - paddle.left) / paddle.width * 2 - 1
-        ballx = 7 * relative_collision_position
+        ballx = ballx * relative_collision_position
         bally = -bally
-    ballx = max(-5, min(5, ballx))
-    bally = max(-5, min(5, bally))
+    # ballx = max(-5, min(5, ballx))
+    # bally = max(-5, min(5, bally))
 
 
 def draw_wall():
@@ -109,10 +114,10 @@ def main(score, balls):
     list_bricks = return_brick_list(list_bricks)
 
     while run:
+        print(bally)
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 run = False
-
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_LEFT:
                     moving_left = True
@@ -127,12 +132,12 @@ def main(score, balls):
             if ballx == 0 and bally == 0:
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_RIGHT:
-                        ballx = 7 * random.choice((1, -1))
-                        bally = -7
+                        ballx = velocity * random.choice((1, -1))
+                        bally = -velocity
 
                     if event.key == pygame.K_LEFT:
-                        ballx = 7 * random.choice((1, -1))
-                        bally = -7
+                        ballx = velocity * random.choice((1, -1))
+                        bally = -velocity
 
         if moving_left:
             paddle.left -= p_speed
@@ -148,12 +153,60 @@ def main(score, balls):
             if cooldown_timer <= 0:
                 hit_index = ball.collidelist(list_bricks)
                 if hit_index != -1:
-                    hit_rect = list_bricks.pop(hit_index)
+                    y_hit_index = list_bricks[hit_index].y
+                    if (y_hit_index == 210 or y_hit_index == 225) and (bally != velocity_green
+                                                                       and bally != velocity_orange
+                                                                       and bally != velocity_red
+
+                                                                       and bally != -velocity_green
+                                                                       and bally != -velocity_orange
+                                                                       and bally != -velocity_red):
+                        if bally < 0:
+                            bally = -velocity_yellow
+                        else:
+                            bally = velocity_yellow
+                        if ballx < 0:
+                            ballx = -velocity_yellow
+                        else:
+                            ballx = velocity_yellow
+                    elif (y_hit_index == 180 or y_hit_index == 195) and (bally != velocity_orange
+                                                                         and bally != velocity_red
+
+                                                                         and bally != -velocity_orange
+                                                                         and bally != -velocity_red):
+                        if bally < 0:
+                            bally = -velocity_green
+                        else:
+                            bally = velocity_green
+                        if ballx < 0:
+                            ballx = -velocity_green
+                        else:
+                            ballx = velocity_green
+                    elif (y_hit_index == 150 or y_hit_index == 165) and (bally != velocity_red
+
+                                                                         and bally != -velocity_red):
+                        if bally < 0:
+                            bally = -velocity_orange
+                        else:
+                            bally = velocity_orange
+                        if ballx < 0:
+                            ballx = -velocity_orange
+                        else:
+                            ballx = velocity_orange
+                    elif (y_hit_index == 120 or y_hit_index == 135):
+                        if bally < 0:
+                            bally = -velocity_red
+                        else:
+                            bally = velocity_red
+                        if ballx < 0:
+                            ballx = -velocity_red
+                        else:
+                            ballx = velocity_red
+                    list_bricks.pop(hit_index)
                     bally *= -1
                     score += 1
                     brick_collision = True
                     cooldown_timer = 1
-
         screen.fill(bg)
         ballmove()
         draw_wall()
@@ -171,15 +224,6 @@ def main(score, balls):
                 ballx = 0
                 bally = 0
                 ball_started = False
-
-            if ballx == 0 and bally == 0 and ball_started:
-                if event.type == pygame.KEYDOWN:
-                    if event.key == pygame.K_RIGHT:
-                        ballx = 7 * random.choice((1, -1))
-                        bally = -7
-                    elif event.key == pygame.K_LEFT:
-                        ballx = 7 * random.choice((1, -1))
-                        bally = -7
 
         pygame.draw.rect(screen, BLUE, paddle)
         pygame.draw.rect(screen, WHITE, ball)
