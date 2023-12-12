@@ -13,6 +13,7 @@ screen = pygame.display.set_mode(size)
 clock = pygame.time.Clock()
 game_font = pygame.font.Font("fontgame.ttf", 35)
 end_text = f"Game over"
+
 FPS = 75
 bg = (0, 0, 0)
 
@@ -44,14 +45,19 @@ velocity_green = 4
 velocity_orange = 5
 velocity_red = 6
 
-ball = pygame.Rect(WIDTH / 2 - 6, 600, 15, 10)
+ball = pygame.Rect(WIDTH / 2 - 6, 450, 12, 10)
 paddle = pygame.Rect(WIDTH / 2 - 28, 650, 55, 16)
 p_speed = 10
 ballx = 0
 bally = 0
-lives = 1
+lives = 5
 brick_collision = False
 cooldown_timer = 0
+
+# sound effects
+bounce_wall_sound_effect = pygame.mixer.Sound('assets/sound_collision_wall.wav')
+bounce_table_sound_effect = pygame.mixer.Sound('assets/sound_collision_paddle.wav')
+bounce_brick_sound_effect = pygame.mixer.Sound('assets/sound_collision_brick.wav')
 
 
 def ballmove():
@@ -60,12 +66,16 @@ def ballmove():
     ball.y += bally
     if ball.top <= 20 or ball.bottom >= HEIGHT:
         bally = -bally
+        bounce_wall_sound_effect.play()
     if ball.right >= WIDTH - 10 or ball.left <= 10:
         ballx = -ballx
+        bounce_wall_sound_effect.play()
     if ball.colliderect(paddle):
-        relative_collision_position = (ball.x + ball.width / 2 - paddle.left) / paddle.width * 2 - 1
-        ballx = ballx * relative_collision_position
-        bally = -bally
+        if bally > 0:
+            relative_collision_position = (ball.x + ball.width / 2 - paddle.left) / paddle.width * 2 - 1
+            ballx = ballx * relative_collision_position
+            bally = -bally
+        bounce_table_sound_effect.play()
     # ballx = max(-5, min(5, ballx))
     # bally = max(-5, min(5, bally))
 
@@ -114,7 +124,6 @@ def main(score, balls):
     list_bricks = return_brick_list(list_bricks)
 
     while run:
-        print(bally)
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 run = False
@@ -123,7 +132,6 @@ def main(score, balls):
                     moving_left = True
                 elif event.key == pygame.K_RIGHT:
                     moving_right = True
-
             if event.type == pygame.KEYUP:
                 if event.key == pygame.K_LEFT:
                     moving_left = False
@@ -133,12 +141,11 @@ def main(score, balls):
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_RIGHT:
                         ballx = velocity * random.choice((1, -1))
-                        bally = -velocity
+                        bally = velocity
 
                     if event.key == pygame.K_LEFT:
                         ballx = velocity * random.choice((1, -1))
-                        bally = -velocity
-
+                        bally = velocity
         if moving_left:
             paddle.left -= p_speed
         if moving_right:
@@ -171,7 +178,6 @@ def main(score, balls):
                             ballx = velocity_yellow
                     elif (y_hit_index == 180 or y_hit_index == 195) and (bally != velocity_orange
                                                                          and bally != velocity_red
-
                                                                          and bally != -velocity_orange
                                                                          and bally != -velocity_red):
                         if bally < 0:
@@ -183,7 +189,6 @@ def main(score, balls):
                         else:
                             ballx = velocity_green
                     elif (y_hit_index == 150 or y_hit_index == 165) and (bally != velocity_red
-
                                                                          and bally != -velocity_red):
                         if bally < 0:
                             bally = -velocity_orange
@@ -204,6 +209,7 @@ def main(score, balls):
                             ballx = velocity_red
                     list_bricks.pop(hit_index)
                     bally *= -1
+                    bounce_brick_sound_effect.play()
                     score += 1
                     brick_collision = True
                     cooldown_timer = 1
@@ -213,12 +219,13 @@ def main(score, balls):
         draw_list_brick2(list_bricks)
         # lives and game over system
         if ball.y > paddle.y:
-            lives += 1
-            if lives >= 4:
+
+            lives -= 1
+            if lives < 1:
                 run = False
             else:
                 ball.x = WIDTH // 2 - 6
-                ball.y = 600
+                ball.y = 450
                 paddle.x = WIDTH // 2 - 28
                 paddle.y = 650
                 ballx = 0
@@ -235,16 +242,25 @@ def main(score, balls):
         clock.tick(FPS)
 
         if brick_collision:
+            if score == 112:
+                run = False
             cooldown_timer -= clock.get_time() / 1000
             if cooldown_timer <= 0:
                 brick_collision = False
 
     screen.fill((0, 0, 0))
-    if lives == 4:
+
+    if lives < 1:
+        end_text = f"Game over"
         end_text_formated = game_font.render(end_text, False, (255, 255, 255))
         screen.blit(end_text_formated, (150, 300))
         pygame.display.update()
         time.sleep(4)
-
+    if score == 112:
+        end_text = f"Victory"
+        end_text_formated = game_font.render(end_text, False, (255, 255, 255))
+        screen.blit(end_text_formated, (150, 300))
+        pygame.display.update()
+        time.sleep(4)
 
 main(score, balls)
