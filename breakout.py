@@ -76,6 +76,7 @@ def ballmove():
             ballx = ballx * relative_collision_position
             bally = -bally
         bounce_table_sound_effect.play()
+
     # ballx = max(-5, min(5, ballx))
     # bally = max(-5, min(5, bally))
 
@@ -264,3 +265,4 @@ def main(score, balls):
         time.sleep(4)
 
 main(score, balls)
+
