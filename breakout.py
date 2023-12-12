@@ -5,6 +5,7 @@ import time
 pygame.init()
 pygame.mixer.init()
 
+# screen adjustments
 WIDTH = 632
 HEIGHT = 700
 size = (WIDTH, HEIGHT)
@@ -12,44 +13,38 @@ pygame.display.set_caption("Breakout")
 screen = pygame.display.set_mode(size)
 clock = pygame.time.Clock()
 game_font = pygame.font.Font("fontgame.ttf", 35)
-end_text = f"Game over"
-
 FPS = 75
-bg = (0, 0, 0)
 
+# colors
 WHITE = (255, 255, 255)
 GREY = (212, 210, 212)
 BLACK = (0, 0, 0)
 BLUE = (0, 97, 148)
-
 RED = (162, 8, 0)
 ORANGE = (183, 119, 0)
 GREEN = (0, 127, 33)
 YELLOW = (197, 199, 37)
 
+# some parameters
 score = 0
 balls = 1
 velocity = 2
-
 brick_width = 40
 brick_height = 11
 x_gap = 4
 y_gap = 4
 x_gap_init = 10
 y_gap_init = 120
+speed_brick_yellow = 3
+speed_brick_green = 4
+speed_brick_orange = 5
+speed_brick_red = 6
 wall_width = 10
-dist_top = 20
-
-velocity_yellow = 3
-velocity_green = 4
-velocity_orange = 5
-velocity_red = 6
-
 ball = pygame.Rect(WIDTH / 2 - 6, 450, 12, 10)
 paddle = pygame.Rect(WIDTH / 2 - 28, 650, 55, 16)
 p_speed = 10
-ballx = 0
-bally = 0
+ball_speed_x = 0
+ball_speed_y = 0
 lives = 5
 brick_collision = False
 cooldown_timer = 0
@@ -60,25 +55,23 @@ bounce_table_sound_effect = pygame.mixer.Sound('assets/sound_collision_paddle.wa
 bounce_brick_sound_effect = pygame.mixer.Sound('assets/sound_collision_brick.wav')
 
 
-def ballmove():
-    global ballx, bally
-    ball.x += ballx
-    ball.y += bally
+# ball movement
+def ball_move():
+    global ball_speed_x, ball_speed_y
+    ball.x += ball_speed_x
+    ball.y += ball_speed_y
     if ball.top <= 20 or ball.bottom >= HEIGHT:
-        bally = -bally
+        ball_speed_y = -ball_speed_y
         bounce_wall_sound_effect.play()
     if ball.right >= WIDTH - 10 or ball.left <= 10:
-        ballx = -ballx
+        ball_speed_x = -ball_speed_x
         bounce_wall_sound_effect.play()
     if ball.colliderect(paddle):
-        if bally > 0:
+        if ball_speed_y > 0:
             relative_collision_position = (ball.x + ball.width / 2 - paddle.left) / paddle.width * 2 - 1
-            ballx = ballx * relative_collision_position
-            bally = -bally
+            ball_speed_x = ball_speed_x * relative_collision_position
+            ball_speed_y = -ball_speed_y
         bounce_table_sound_effect.play()
-
-    # ballx = max(-5, min(5, ballx))
-    # bally = max(-5, min(5, bally))
 
 
 def draw_wall():
@@ -92,6 +85,7 @@ def draw_wall():
     pygame.draw.line(screen, BLUE, [WIDTH, 657], [(WIDTH - wall_width), 657], 35)
 
 
+# add bricks on a list
 def return_brick_list(list_bricks):
     for i in range(8):
         for j in range(14):
@@ -102,7 +96,7 @@ def return_brick_list(list_bricks):
     return list_bricks
 
 
-def draw_list_brick2(list_bricks):
+def draw_list_brick(list_bricks):
     for i in list_bricks:
         if i.y == 120 or i.y == 135:
             pygame.draw.rect(screen, RED, i)
@@ -115,12 +109,10 @@ def draw_list_brick2(list_bricks):
 
 
 def main(score, balls):
-    global ballx, bally, lives, end_text, brick_collision, cooldown_timer, ball_started, event
-    step = 0
+    global ball_speed_x, ball_speed_y, lives, brick_collision, cooldown_timer, ball_started, event
     run = True
     moving_left = False
     moving_right = False
-    game_over = False
     list_bricks = []
     list_bricks = return_brick_list(list_bricks)
 
@@ -138,20 +130,19 @@ def main(score, balls):
                     moving_left = False
                 elif event.key == pygame.K_RIGHT:
                     moving_right = False
-            if ballx == 0 and bally == 0:
+            if ball_speed_x == 0 and ball_speed_y == 0:
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_RIGHT:
-                        ballx = velocity * random.choice((1, -1))
-                        bally = velocity
-
+                        ball_speed_x = velocity * random.choice((1, -1))
+                        ball_speed_y = velocity
                     if event.key == pygame.K_LEFT:
-                        ballx = velocity * random.choice((1, -1))
-                        bally = velocity
+                        ball_speed_x = velocity * random.choice((1, -1))
+                        ball_speed_y = velocity
+
         if moving_left:
             paddle.left -= p_speed
         if moving_right:
             paddle.right += p_speed
-
         if paddle.x < 10:
             paddle.x = 10
         elif paddle.x + 55 > WIDTH - 10:
@@ -162,65 +153,66 @@ def main(score, balls):
                 hit_index = ball.collidelist(list_bricks)
                 if hit_index != -1:
                     y_hit_index = list_bricks[hit_index].y
-                    if (y_hit_index == 210 or y_hit_index == 225) and (bally != velocity_green
-                                                                       and bally != velocity_orange
-                                                                       and bally != velocity_red
+                    if (y_hit_index == 210 or y_hit_index == 225) and (ball_speed_y != speed_brick_green
+                                                                       and ball_speed_y != speed_brick_orange
+                                                                       and ball_speed_y != speed_brick_red
 
-                                                                       and bally != -velocity_green
-                                                                       and bally != -velocity_orange
-                                                                       and bally != -velocity_red):
-                        if bally < 0:
-                            bally = -velocity_yellow
+                                                                       and ball_speed_y != -speed_brick_green
+                                                                       and ball_speed_y != -speed_brick_orange
+                                                                       and ball_speed_y != -speed_brick_red):
+                        if ball_speed_y < 0:
+                            ball_speed_y = -speed_brick_yellow
                         else:
-                            bally = velocity_yellow
-                        if ballx < 0:
-                            ballx = -velocity_yellow
+                            ball_speed_y = speed_brick_yellow
+                        if ball_speed_x < 0:
+                            ball_speed_x = -speed_brick_yellow
                         else:
-                            ballx = velocity_yellow
-                    elif (y_hit_index == 180 or y_hit_index == 195) and (bally != velocity_orange
-                                                                         and bally != velocity_red
-                                                                         and bally != -velocity_orange
-                                                                         and bally != -velocity_red):
-                        if bally < 0:
-                            bally = -velocity_green
+                            ball_speed_x = speed_brick_yellow
+                    elif (y_hit_index == 180 or y_hit_index == 195) and (ball_speed_y != speed_brick_orange
+                                                                         and ball_speed_y != speed_brick_red
+                                                                         and ball_speed_y != -speed_brick_orange
+                                                                         and ball_speed_y != -speed_brick_red):
+                        if ball_speed_y < 0:
+                            ball_speed_y = -speed_brick_green
                         else:
-                            bally = velocity_green
-                        if ballx < 0:
-                            ballx = -velocity_green
+                            ball_speed_y = speed_brick_green
+                        if ball_speed_x < 0:
+                            ball_speed_x = -speed_brick_green
                         else:
-                            ballx = velocity_green
-                    elif (y_hit_index == 150 or y_hit_index == 165) and (bally != velocity_red
-                                                                         and bally != -velocity_red):
-                        if bally < 0:
-                            bally = -velocity_orange
+                            ball_speed_x = speed_brick_green
+                    elif (y_hit_index == 150 or y_hit_index == 165) and (ball_speed_y != speed_brick_red
+                                                                         and ball_speed_y != -speed_brick_red):
+                        if ball_speed_y < 0:
+                            ball_speed_y = -speed_brick_orange
                         else:
-                            bally = velocity_orange
-                        if ballx < 0:
-                            ballx = -velocity_orange
+                            ball_speed_y = speed_brick_orange
+                        if ball_speed_x < 0:
+                            ball_speed_x = -speed_brick_orange
                         else:
-                            ballx = velocity_orange
-                    elif (y_hit_index == 120 or y_hit_index == 135):
-                        if bally < 0:
-                            bally = -velocity_red
+                            ball_speed_x = speed_brick_orange
+                    elif y_hit_index == 120 or y_hit_index == 135:
+                        if ball_speed_y < 0:
+                            ball_speed_y = -speed_brick_red
                         else:
-                            bally = velocity_red
-                        if ballx < 0:
-                            ballx = -velocity_red
+                            ball_speed_y = speed_brick_red
+                        if ball_speed_x < 0:
+                            ball_speed_x = -speed_brick_red
                         else:
-                            ballx = velocity_red
+                            ball_speed_x = speed_brick_red
                     list_bricks.pop(hit_index)
-                    bally *= -1
+                    ball_speed_y *= -1
                     bounce_brick_sound_effect.play()
                     score += 1
                     brick_collision = True
                     cooldown_timer = 1
-        screen.fill(bg)
-        ballmove()
+
+        screen.fill(BLACK)
+        ball_move()
         draw_wall()
-        draw_list_brick2(list_bricks)
+        draw_list_brick(list_bricks)
+
         # lives and game over system
         if ball.y > paddle.y:
-
             lives -= 1
             if lives < 1:
                 run = False
@@ -229,8 +221,8 @@ def main(score, balls):
                 ball.y = 450
                 paddle.x = WIDTH // 2 - 28
                 paddle.y = 650
-                ballx = 0
-                bally = 0
+                ball_speed_x = 0
+                ball_speed_y = 0
                 ball_started = False
 
         pygame.draw.rect(screen, BLUE, paddle)
@@ -253,16 +245,17 @@ def main(score, balls):
 
     if lives < 1:
         end_text = f"Game over"
-        end_text_formated = game_font.render(end_text, False, (255, 255, 255))
-        screen.blit(end_text_formated, (150, 300))
+        end_text_formatted = game_font.render(end_text, False, (255, 255, 255))
+        screen.blit(end_text_formatted, (150, 300))
         pygame.display.update()
         time.sleep(4)
     if score == 112:
         end_text = f"Victory"
-        end_text_formated = game_font.render(end_text, False, (255, 255, 255))
-        screen.blit(end_text_formated, (150, 300))
+        end_text_formatted = game_font.render(end_text, False, (255, 255, 255))
+        screen.blit(end_text_formatted, (150, 300))
         pygame.display.update()
         time.sleep(4)
+
 
 main(score, balls)
 
