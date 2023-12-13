@@ -84,6 +84,26 @@ def draw_wall():
     pygame.draw.line(screen, BLUE, [0, 657], [(wall_width - 1), 657], 35)
     pygame.draw.line(screen, BLUE, [WIDTH, 657], [(WIDTH - wall_width), 657], 35)
 
+    pygame.draw.line(screen, RED, [(wall_width / 2) - 1, 120],
+                     [(wall_width / 2) - 1, 146], wall_width)
+    pygame.draw.line(screen, RED, [(WIDTH - wall_width / 2) - 1, 120],
+                     [(WIDTH - wall_width / 2) - 1, 146], wall_width)
+
+    pygame.draw.line(screen, ORANGE, [(wall_width / 2) - 1, 150],
+                     [(wall_width / 2) - 1, 176], wall_width)
+    pygame.draw.line(screen, ORANGE, [(WIDTH - wall_width / 2) - 1, 150],
+                     [(WIDTH - wall_width / 2) - 1, 176], wall_width)
+
+    pygame.draw.line(screen, GREEN, [(wall_width / 2) - 1, 180],
+                     [(wall_width / 2) - 1, 206], wall_width)
+    pygame.draw.line(screen, GREEN, [(WIDTH - wall_width / 2) - 1, 180],
+                     [(WIDTH - wall_width / 2) - 1, 206], wall_width)
+
+    pygame.draw.line(screen, YELLOW, [(wall_width / 2) - 1, 210],
+                     [(wall_width / 2) - 1, 236], wall_width)
+    pygame.draw.line(screen, YELLOW, [(WIDTH - wall_width / 2) - 1, 210],
+                     [(WIDTH - wall_width / 2) - 1, 236], wall_width)
+
 
 # add bricks on a list
 def return_brick_list(list_bricks):
